@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">{{ title }}</h4>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="mdi mdi-office-building"></i> {{ title }}</h5>
+    </div>
+    <div class="card-body">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        {{ form_start(form, {'attr': {'autocomplete': 'off', 'novalidate': 'novalidate'}}) }}
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold" for="agence_nomAgence">
+                        <i class="mdi mdi-office-building"></i> Nom de l'agence <span class="text-danger">*</span>
+                    </label>
+                    {{ form_widget(form.nomAgence, {'attr': {'class': 'form-control', 'placeholder': "Nom de l'agence", 'required': 'required'}}) }}
+                    {{ form_errors(form.nomAgence) }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold" for="agence_adresse">
+                        <i class="mdi mdi-map-marker"></i> Adresse <span class="text-danger">*</span>
+                    </label>
+                    {{ form_widget(form.adresse, {'attr': {'class': 'form-control', 'placeholder': 'Adresse de l\'agence', 'required': 'required'}}) }}
+                    {{ form_errors(form.adresse) }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold" for="agence_telephone">
+                        <i class="mdi mdi-phone"></i> Téléphone
+                    </label>
+                    {{ form_widget(form.telephone, {'attr': {'class': 'form-control', 'placeholder': 'Téléphone'}}) }}
+                    {{ form_errors(form.telephone) }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold" for="agence_email">
+                        <i class="mdi mdi-email"></i> Email
+                    </label>
+                    {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'exemple@email.com', 'type': 'email'}}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold" for="agence_statut">
+                        <i class="mdi mdi-check-circle"></i> Statut
+                    </label>
+                    {{ form_widget(form.statut, {'attr': {'class': 'form-select'}}) }}
+                    {{ form_errors(form.statut) }}
+                </div>
+            </div>
+            {{ form_rest(form) }}
+            <div class="mt-4 d-flex justify-content-between gap-2">
+                <div>
+                    <button type="submit" class="btn btn-success px-4"><i class="mdi mdi-content-save"></i> Enregistrer</button>
+                    <button type="reset" class="btn btn-secondary px-4"><i class="mdi mdi-undo"></i> Réinitialiser</button>
+                </div>
+                <a href="{{ path('app_agence_index') }}" class="btn btn-outline-secondary px-4"><i class="mdi mdi-arrow-left"></i> Retour</a>
+            </div>
+            {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

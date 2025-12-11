@@ -1,0 +1,127 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des transferts{% endblock %}
+
+{% block body %}
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">Transferts de fonds</h4>
+</div>
+
+<!-- Alertes d'audit -->
+{% if alertes is not empty %}
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">
+            <i class="mdi mdi-alert"></i> Alertes d'Audit - Transferts en attente de réception
+            <span class="badge bg-danger ms-2">{{ alertes|length }}</span>
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Statut</th>
+                        <th>Référence</th>
+                        <th>Date Envoi</th>
+                        <th>Agence Émettrice</th>
+                        <th>Devise</th>
+                        <th class="text-end">Envoyé</th>
+                        <th class="text-end">Reçu</th>
+                        <th class="text-end">Manquant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alerte in alertes %}
+                    <tr class="alert-{{ alerte.type }}">
+                        <td>
+                            <span class="badge bg-{{ alerte.type }}">
+                                {{ alerte.statut }}
+                            </span>
+                        </td>
+                        <td><strong>{{ alerte.reference }}</strong></td>
+                        <td>{{ alerte.date_envoi|date('d/m/Y') }}</td>
+                        <td>{{ alerte.agence_emettrice }}</td>
+                        <td><strong>{{ alerte.devise }}</strong></td>
+                        <td class="text-end">{{ alerte.montant_envoye|number_format(2, ',', ' ') }}</td>
+                        <td class="text-end">{{ alerte.montant_recu|number_format(2, ',', ' ') }}</td>
+                        <td class="text-end text-danger fw-bold">{{ alerte.montant_manquant|number_format(2, ',', ' ') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="mdi mdi-bank-transfer"></i> Liste des transferts</h5>
+        <a href="{{ path('app_transfert_new') }}" class="btn btn-light btn-sm">
+            <i class="mdi mdi-plus-circle"></i> Nouveau transfert
+        </a>
+    </div>
+    <div class="card-body">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {% if transferts is empty %}
+            <div class="alert alert-info">
+                <i class="mdi mdi-information"></i> Aucun transfert enregistré pour le moment.
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Référence</th>
+                            <th>Nature</th>
+                            <th>Date</th>
+                            <th>Agence</th>
+                            <th>Utilisateur</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transfert in transferts %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-secondary rounded-pill">
+                                    {{ transfert.reference }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if transfert.natureOperation == 'envoi' %}
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="mdi mdi-arrow-up"></i> Envoi
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-success">
+                                        <i class="mdi mdi-arrow-down"></i> Réception
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>{{ transfert.dateTransaction|date('d/m/Y') }}</td>
+                            <td>{{ transfert.agence.nomAgence }}</td>
+                            <td>{{ transfert.utilisateur.nom }}</td>
+                            <td class="text-center">
+                                <a href="{{ path('app_transaction_show', {'id': transfert.id}) }}" class="btn btn-sm btn-outline-info" title="Voir">
+                                    <i class="mdi mdi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

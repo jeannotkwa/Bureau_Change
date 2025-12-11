@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails Fonds{% endblock %}
+
+{% block body %}
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">Détails Fonds</h4>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="mdi mdi-bank"></i> Fonds de départ</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-calendar"></i> Date</label>
+                <p class="form-control-plaintext">{{ fonds.dateJour ? fonds.dateJour|date('d/m/Y') : '' }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-office-building"></i> Agence</label>
+                <p class="form-control-plaintext">{{ fonds.agence ? fonds.agence.nomAgence : '-' }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-check-circle"></i> Statut</label>
+                <p class="form-control-plaintext"><span class="badge rounded-pill bg-{{ fonds.statut == 'ouvert' ? 'success' : 'secondary' }}">{{ fonds.statut|capitalize }}</span></p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-clock"></i> Créé le</label>
+                <p class="form-control-plaintext">{{ fonds.createdAt ? fonds.createdAt|date('d/m/Y H:i') : '' }}</p>
+            </div>
+        </div>
+        <div class="mt-4 d-flex justify-content-end gap-2">
+            <a href="{{ path('app_fonds_edit', {id: fonds.id}) }}" class="btn btn-outline-warning px-4"><i class="mdi mdi-pencil"></i> Modifier</a>
+            <a href="{{ path('app_fonds_index') }}" class="btn btn-outline-secondary px-4"><i class="mdi mdi-arrow-left"></i> Retour</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

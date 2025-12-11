@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail devise{% endblock %}
+
+{% block body %}
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">Détail devise</h4>
+    <div class="page-title-right">
+        <a href="{{ path('app_devise_index') }}" class="btn btn-light">Retour</a>
+        <a href="{{ path('app_devise_edit', {id: devise.id}) }}" class="btn btn-primary">Modifier</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Sigle</dt>
+            <dd class="col-sm-9">{{ devise.sigle }}</dd>
+            <dt class="col-sm-3">Libellé</dt>
+            <dd class="col-sm-9">{{ devise.libelle }}</dd>
+            <dt class="col-sm-3">Taux Achat</dt>
+            <dd class="col-sm-9">{{ devise.tauxAchat }}</dd>
+            <dt class="col-sm-3">Taux Vente</dt>
+            <dd class="col-sm-9">{{ devise.tauxVente }}</dd>
+            <dt class="col-sm-3">Statut</dt>
+            <dd class="col-sm-9"><span class="badge bg-{{ devise.statut == 'actif' ? 'success' : 'secondary' }}">{{ devise.statut|capitalize }}</span></dd>
+        </dl>
+    </div>
+</div>
+{% endblock %}

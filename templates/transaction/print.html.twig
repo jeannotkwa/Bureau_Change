@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reçu Transaction #{{ transaction.reference }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .receipt-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #556ee6;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #556ee6;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            color: #74788d;
+            font-size: 14px;
+        }
+        
+        .reference {
+            background: #556ee6;
+            color: white;
+            padding: 10px 20px;
+            display: inline-block;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .info-section {
+            margin-bottom: 30px;
+        }
+        
+        .info-section h3 {
+            color: #556ee6;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 8px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: #74788d;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 15px;
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .details-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            color: #74788d;
+            border-bottom: 2px solid #dee2e6;
+            text-transform: uppercase;
+        }
+        
+        .details-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+            color: #495057;
+        }
+        
+        .details-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .total-section {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .total-row.grand-total {
+            font-size: 20px;
+            font-weight: bold;
+            color: #556ee6;
+            border-top: 2px solid #dee2e6;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+            text-align: center;
+            color: #74788d;
+            font-size: 12px;
+        }
+        
+        .signature-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin-top: 50px;
+        }
+        
+        .signature-box {
+            text-align: center;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #495057;
+            margin-top: 60px;
+            padding-top: 10px;
+            font-size: 13px;
+            color: #74788d;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-achat {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-vente {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .badge-autre {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+                background: white;
+            }
+            
+            .receipt-container {
+                box-shadow: none;
+                padding: 20px;
+            }
+            
+            .no-print {
+                display: none;
+            }
+        }
+        
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #556ee6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(85, 110, 230, 0.3);
+        }
+        
+        .print-button:hover {
+            background: #4a5fc7;
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button no-print" onclick="window.print()">
+        🖨️ Imprimer
+    </button>
+
+    <div class="receipt-container">
+        <div class="header">
+            <h1>BUREAU DE CHANGE</h1>
+            <p>Reçu de Transaction</p>
+            {% if transaction.agence %}
+                <p style="margin-top: 10px; font-weight: 600;">{{ transaction.agence.nomAgence }}</p>
+                {% if transaction.agence.adresse %}
+                    <p>{{ transaction.agence.adresse }}</p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div style="text-align: center;">
+            <div class="reference">
+                Réf: {{ transaction.reference }}
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>Informations Client</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Nom</span>
+                    <span class="info-value">{{ transaction.nom }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Type d'identité</span>
+                    <span class="info-value">{{ transaction.identite ? transaction.identite.libelleIdentite : '-' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Adresse</span>
+                    <span class="info-value">{{ transaction.adresse|default('-') }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Téléphone</span>
+                    <span class="info-value">{{ transaction.telephone|default('-') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>Détails de la Transaction</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Type d'opération</span>
+                    <span class="info-value">
+                        {% if transaction.natureOperation == 'achat' %}
+                            <span class="badge badge-achat">ACHAT</span>
+                        {% elseif transaction.natureOperation == 'vente' %}
+                            <span class="badge badge-vente">VENTE</span>
+                        {% else %}
+                            <span class="badge badge-autre">{{ transaction.natureOperation|upper }}</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Date</span>
+                    <span class="info-value">{{ transaction.dateTransaction|date('d/m/Y à H:i') }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Agence</span>
+                    <span class="info-value">{{ transaction.agence ? transaction.agence.nomAgence : '-' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Agent</span>
+                    <span class="info-value">{{ transaction.utilisateur ? transaction.utilisateur.nom : '-' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>Détails des Montants</h3>
+            <table class="details-table">
+                <thead>
+                    <tr>
+                        <th>Devise Entrée</th>
+                        <th>Montant</th>
+                        <th>Taux</th>
+                        <th>Contre-valeur</th>
+                        <th>Devise Sortie</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set totalMontant = 0 %}
+                    {% set totalContreValeur = 0 %}
+                    {% for detail in transaction.details %}
+                        <tr>
+                            <td><strong>{{ detail.deviseInput ? detail.deviseInput.sigle : '-' }}</strong></td>
+                            <td>{{ detail.montant|number_format(2, ',', ' ') }}</td>
+                            <td>{{ detail.taux|number_format(4, ',', ' ') }}</td>
+                            <td>{{ detail.contreValeur|number_format(2, ',', ' ') }}</td>
+                            <td><strong>{{ detail.deviseOutput ? detail.deviseOutput.sigle : '-' }}</strong></td>
+                        </tr>
+                        {% set totalMontant = totalMontant + detail.montant %}
+                        {% set totalContreValeur = totalContreValeur + detail.contreValeur %}
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="total-section">
+                <div class="total-row">
+                    <span>Total Montant:</span>
+                    <span>{{ totalMontant|number_format(2, ',', ' ') }}</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>Total Contre-valeur:</span>
+                    <span>{{ totalContreValeur|number_format(2, ',', ' ') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line">
+                    Signature du Client
+                </div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line">
+                    Signature de l'Agent
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Document généré le {{ "now"|date('d/m/Y à H:i:s') }}</p>
+            <p style="margin-top: 10px;">Merci de votre confiance</p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-focus pour impression
+        window.onload = function() {
+            // Optionnel: décommenter pour imprimer automatiquement
+            // window.print();
+        };
+    </script>
+</body>
+</html>

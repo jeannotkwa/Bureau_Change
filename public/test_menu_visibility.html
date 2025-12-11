@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Visibilité Menu GESTION FINANCIÈRE</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .info { background: #e3f2fd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #c8e6c9; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .warning { background: #fff3cd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .code { background: #f5f5f5; padding: 10px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test Visibilité Menu GESTION FINANCIÈRE</h1>
+    
+    <div class="info">
+        <h2>Configuration Actuelle</h2>
+        <p>Fichier: <code>templates/includes/sidebar.html.twig</code></p>
+        <ul>
+            <li>✅ Section "GESTION FINANCIÈRE" (lignes 42-89): <strong>SANS restriction</strong></li>
+            <li>✅ Section "ADMINISTRATION" (ligne 114+): <strong>AVEC restriction ROLE_ADMIN</strong></li>
+        </ul>
+    </div>
+
+    <div class="success">
+        <h2>✅ Résultat Attendu</h2>
+        <p>Les utilisateurs avec <code>ROLE_USER</code> DOIVENT voir :</p>
+        <ul>
+            <li>✓ TABLEAU DE BORD</li>
+            <li>✓ OPÉRATIONS (Transactions Change)</li>
+            <li>✓ <strong>GESTION FINANCIÈRE</strong>
+                <ul>
+                    <li>- Fonds de Départ</li>
+                    <li>- Transferts de Fonds</li>
+                    <li>- Opérations Diverses</li>
+                </ul>
+            </li>
+            <li>✓ RAPPORTS & ANALYSES</li>
+            <li>✗ ADMINISTRATION (caché)</li>
+        </ul>
+    </div>
+
+    <div class="warning">
+        <h2>🔧 Si le menu n'est pas visible</h2>
+        <p>Vérifiez ces points :</p>
+        <ol>
+            <li><strong>Cache navigateur :</strong> Appuyez sur <kbd>Ctrl+F5</kbd> pour recharger</li>
+            <li><strong>Session utilisateur :</strong> Déconnectez-vous et reconnectez-vous</li>
+            <li><strong>Rôle utilisateur :</strong> Vérifiez que l'utilisateur a bien <code>["ROLE_USER"]</code> dans la table <code>utilisateurs</code></li>
+            <li><strong>Template compilé :</strong> Vérifiez <code>var/cache/dev/twig/</code></li>
+        </ol>
+    </div>
+
+    <div class="code">
+        <h3>Commandes de vérification :</h3>
+        <pre>
+# Vider le cache Symfony
+php bin/console cache:clear
+
+# Vérifier les rôles utilisateurs
+SELECT nom, email, roles FROM utilisateurs WHERE roles LIKE '%ROLE_USER%';
+
+# Vérifier les routes accessibles
+php bin/console debug:router | grep -E "(fonds|transfert|operation)"
+        </pre>
+    </div>
+
+    <div class="info">
+        <h2>📋 Routes GESTION FINANCIÈRE</h2>
+        <p>Ces routes sont accessibles avec <code>ROLE_USER</code> selon <code>security.yaml</code> :</p>
+        <ul>
+            <li><code>/fonds</code> - Liste des fonds</li>
+            <li><code>/fonds/nouveau</code> - Nouveau fonds</li>
+            <li><code>/transferts</code> - Liste des transferts</li>
+            <li><code>/transferts/nouveau</code> - Nouveau transfert</li>
+            <li><code>/operations-diverses</code> - Liste des opérations</li>
+            <li><code>/operations-diverses/nouveau</code> - Nouvelle opération</li>
+        </ul>
+    </div>
+
+    <hr>
+    <p><em>Si après ces vérifications le menu n'est toujours pas visible, il peut y avoir :</em></p>
+    <ul>
+        <li>Un fichier JavaScript qui cache le menu</li>
+        <li>Un fichier CSS avec <code>display: none;</code></li>
+        <li>Un autre template qui remplace sidebar.html.twig</li>
+    </ul>
+
+</body>
+</html>

@@ -1,0 +1,196 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">{{ title }}</h4>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="mdi mdi-swap-horizontal"></i> Nouvelle Transaction de Change</h5>
+    </div>
+    <div class="card-body">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {{ form_start(form, {'attr': {'autocomplete': 'off', 'novalidate': 'novalidate', 'class': 'transaction-form'}}) }}
+        
+            {# Date de transaction #}
+            <div class="mb-4">
+                <label class="form-label fw-bold">
+                    <i class="mdi mdi-calendar"></i> 📅 Date <span class="text-danger">*</span>
+                </label>
+                {{ form_widget(form.dateTransaction, {'attr': {'class': 'form-control', 'required': 'required'}}) }}
+                {{ form_errors(form.dateTransaction) }}
+            </div>
+
+            {# Section Informations Client #}
+            <fieldset class="border rounded p-3 mb-4">
+                <legend class="float-none w-auto px-2 text-primary fw-bold">
+                    <i class="mdi mdi-account-circle"></i> Informations Client
+                </legend>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold" for="transaction_nom">
+                            Nom et Prénom <span class="text-danger">*</span>
+                        </label>
+                        {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom et prénom du client', 'required': 'required'}}) }}
+                        {{ form_errors(form.nom) }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold" for="transaction_identite">
+                            Type d'identité <span class="text-danger">*</span>
+                        </label>
+                        {{ form_widget(form.identite, {'attr': {'class': 'form-select', 'required': 'required'}}) }}
+                        {{ form_errors(form.identite) }}
+                    </div>
+                </div>
+                
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold" for="transaction_adresse">
+                            Adresse <span class="text-danger">*</span>
+                        </label>
+                        {{ form_widget(form.adresse, {'attr': {'class': 'form-control', 'placeholder': 'Adresse complète', 'required': 'required'}}) }}
+                        {{ form_errors(form.adresse) }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold" for="transaction_telephone">
+                            Téléphone <span class="text-danger">*</span>
+                        </label>
+                        {{ form_widget(form.telephone, {'attr': {'class': 'form-control', 'placeholder': 'Numéro de téléphone', 'required': 'required'}}) }}
+                        {{ form_errors(form.telephone) }}
+                    </div>
+                </div>
+            </fieldset>
+
+            {# Section Détails de la Transaction #}
+            <fieldset class="border rounded p-3 mb-4">
+                <legend class="float-none w-auto px-2 text-primary fw-bold">
+                    <i class="mdi mdi-currency-usd"></i> Détails de la Transaction
+                </legend>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold" for="transaction_natureOperation">
+                            Nature de l'opération <span class="text-danger">*</span>
+                        </label>
+                        {{ form_widget(form.natureOperation, {'attr': {'class': 'form-select', 'required': 'required'}}) }}
+                        {{ form_errors(form.natureOperation) }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">
+                            Devise remise <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="devise_remise" name="devise_remise" required>
+                            <option value="">-- Sélectionner --</option>
+                            {% for devise in devises %}
+                                <option value="{{ devise.id }}" {% if formData is defined and formData.devise_remise == devise.id %}selected{% endif %}>
+                                    {{ devise.sigle }} - {{ devise.libelle }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">
+                            Montant <span class="text-danger">*</span>
+                        </label>
+                        <input type="number" step="0.01" min="0" id="montant" name="montant" class="form-control" placeholder="Montant" value="{{ formData is defined ? formData.montant : '' }}" required autofocus>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">
+                            Taux <span class="text-danger">*</span>
+                        </label>
+                        <input type="number" step="0.000001" min="0" id="taux" name="taux" class="form-control" placeholder="Taux de change" value="{{ formData is defined ? formData.taux : '' }}" required>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">
+                            Devise sollicitée <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="devise_sollicitee" name="devise_sollicitee" required>
+                            <option value="">-- Sélectionner --</option>
+                            {% for devise in devises %}
+                                <option value="{{ devise.id }}" {% if formData is defined and formData.devise_sollicitee == devise.id %}selected{% endif %}>
+                                    {{ devise.sigle }} - {{ devise.libelle }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">
+                            Contre-valeur
+                        </label>
+                        <input type="text" id="contre_valeur" class="form-control bg-light" placeholder="Calculée automatiquement" readonly>
+                    </div>
+                </div>
+            </fieldset>
+
+            {{ form_rest(form) }}
+            
+            <div class="d-flex justify-content-between gap-2">
+                <div>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="mdi mdi-content-save"></i> Enregistrer la transaction
+                    </button>
+                    <button type="reset" class="btn btn-secondary px-4">
+                        <i class="mdi mdi-undo"></i> Réinitialiser
+                    </button>
+                </div>
+                <a href="{{ path('app_transaction_index') }}" class="btn btn-outline-secondary px-4">
+                    <i class="mdi mdi-arrow-left"></i> Retour
+                </a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+
+{# Script pour le calcul automatique de la contre-valeur #}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const montantField = document.getElementById('montant');
+    const tauxField = document.getElementById('taux');
+    const contreValeurField = document.getElementById('contre_valeur');
+
+    function updateContreValeur() {
+        const montant = parseFloat(montantField.value) || 0;
+        const taux = parseFloat(tauxField.value) || 0;
+        
+        if (montant > 0 && taux > 0) {
+            const contreValeur = montant * taux;
+            contreValeurField.value = contreValeur.toFixed(2);
+        } else {
+            contreValeurField.value = '';
+        }
+    }
+
+    // Ajouter les événements d'écoute
+    montantField.addEventListener('input', updateContreValeur);
+    montantField.addEventListener('change', updateContreValeur);
+    tauxField.addEventListener('input', updateContreValeur);
+    tauxField.addEventListener('change', updateContreValeur);
+
+    // Calcul initial si les champs ont déjà des valeurs
+    updateContreValeur();
+
+    // Mettre le focus sur le champ montant si demandé
+    {% if focusField is defined and focusField == 'montant' %}
+        montantField.focus();
+        montantField.select();
+    {% endif %}
+});
+{% endblock %}

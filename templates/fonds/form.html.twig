@@ -1,0 +1,160 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">{{ title }}</h4>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="mdi mdi-safe"></i> {{ title }}</h5>
+    </div>
+    <div class="card-body">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <form id="fondsForm" method="POST" action="" class="needs-validation" novalidate>
+            {# Sélection de l'agence #}
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    <i class="mdi mdi-office-building"></i> Agence <span class="text-danger">*</span>
+                </label>
+                <select name="agence" id="agence" class="form-select" required>
+                    <option value="" disabled selected>-- Sélectionnez une agence --</option>
+                    {% for agence in agences %}
+                        <option value="{{ agence.id }}">{{ agence.nomAgence }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {# Sélection de la date #}
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    <i class="mdi mdi-calendar"></i> Date <span class="text-danger">*</span>
+                </label>
+                <input type="date" name="date" id="date" class="form-control" max="{{ 'now'|date('Y-m-d') }}" required>
+            </div>
+
+            {# Ajout des devises et montants #}
+            <div class="mb-4">
+                <label class="form-label fw-bold">
+                    <i class="mdi mdi-currency-usd"></i> Montants par Devise <span class="text-danger">*</span>
+                </label>
+                <div id="devises" class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle" id="devisesTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 60%">Devise</th>
+                                <th style="width: 25%">Montant</th>
+                                <th style="width: 15%;" class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="devisesBody">
+                            <tr class="devise-group fade-in">
+                                <td>
+                                    <select name="devise[]" class="form-select" required>
+                                        <option value="" disabled selected>-- Sélectionnez une devise --</option>
+                                        {% for devise in devises %}
+                                            <option value="{{ devise.id }}">
+                                                {{ devise.sigle }} - {{ devise.libelle }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" name="montant[]" class="form-control" placeholder="Montant" step="0.01" min="0" required>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-success add-devise-btn">
+                                        <i class="mdi mdi-plus"></i> Ajouter
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {# Boutons d'action #}
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <button type="submit" class="btn btn-primary px-4" name="ravitailler" value="1">
+                        <i class="mdi mdi-content-save"></i> ✅ Ravitailler
+                    </button>
+                    <button type="reset" class="btn btn-secondary px-4">
+                        <i class="mdi mdi-undo"></i> Réinitialiser
+                    </button>
+                </div>
+                <a href="{{ path('app_fonds_index') }}" class="btn btn-outline-secondary px-4">
+                    <i class="mdi mdi-arrow-left"></i> Retour au registre
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.fade-in { animation: fadeIn 0.25s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+</style>
+
+<script>
+document.querySelector('.add-devise-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    const devisesBody = document.getElementById('devisesBody');
+    const lastRow = devisesBody.lastElementChild;
+    const lastMontant = lastRow.querySelector('input[name="montant[]"]');
+    const lastDevise = lastRow.querySelector('select[name="devise[]"]');
+    
+    // Vérifier que la dernière ligne est remplie
+    if (!lastMontant.value.trim() || !lastDevise.value) {
+        alert('Veuillez remplir la ligne actuelle avant d\'en ajouter une nouvelle.');
+        return;
+    }
+    
+    // Cloner la dernière ligne
+    const newRow = lastRow.cloneNode(true);
+    newRow.querySelector('input[name="montant[]"]').value = '';
+    newRow.querySelector('select[name="devise[]"]').selectedIndex = 0;
+    newRow.classList.add('fade-in');
+    
+    // Remplacer le bouton "Ajouter" par "Supprimer"
+    const btn = newRow.querySelector('button');
+    btn.className = 'btn btn-sm btn-danger remove-devise-btn';
+    btn.innerHTML = '<i class="mdi mdi-delete"></i> Supprimer';
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (devisesBody.children.length > 1) {
+            newRow.remove();
+        } else {
+            alert('Impossible de supprimer la dernière ligne.');
+        }
+    });
+    
+    devisesBody.appendChild(newRow);
+});
+
+// Délégation d'événement pour les boutons supprimer
+document.getElementById('devisesBody').addEventListener('click', function(e) {
+    if (e.target.closest('.remove-devise-btn')) {
+        e.preventDefault();
+        const devisesBody = document.getElementById('devisesBody');
+        if (devisesBody.children.length > 1) {
+            e.target.closest('tr').remove();
+        } else {
+            alert('Impossible de supprimer la dernière ligne.');
+        }
+    }
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">{{ title }}</h4>
+</div>
+
+<div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="mdi mdi-account-multiple"></i> {{ utilisateur is defined ? 'Modifier l\'utilisateur' : 'Ajouter un utilisateur' }}</h5>
+        </div>
+        <div class="card-body">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+            {{ form_start(form, {'attr': {'autocomplete': 'off'}}) }}
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold" for="utilisateur_nom">
+                        <i class="mdi mdi-account"></i> Nom <span class="text-danger">*</span>
+                    </label>
+                    {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom complet', 'required': 'required'}}) }}
+                    {{ form_errors(form.nom) }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold" for="utilisateur_email">
+                        <i class="mdi mdi-email"></i> Email <span class="text-danger">*</span>
+                    </label>
+                    {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'exemple@email.com', 'type': 'email', 'required': 'required'}}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold" for="utilisateur_plainPassword">
+                        <i class="mdi mdi-lock"></i> Mot de passe <span class="text-danger">*</span>
+                    </label>
+                    {{ form_widget(form.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Mot de passe', 'required': 'required'}}) }}
+                    {{ form_errors(form.plainPassword) }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold" for="utilisateur_roles">
+                        <i class="mdi mdi-account-key"></i> Rôle <span class="text-danger">*</span>
+                    </label>
+                    {{ form_widget(form.roles, {'attr': {'class': 'form-select', 'required': 'required'}}) }}
+                    {{ form_errors(form.roles) }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold" for="utilisateur_agence">
+                        <i class="mdi mdi-office-building"></i> Agence d'affectation <span class="text-danger">*</span>
+                    </label>
+                    {{ form_widget(form.agence, {'attr': {'class': 'form-select', 'required': 'required'}}) }}
+                    {{ form_errors(form.agence) }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold" for="utilisateur_statut">
+                        <i class="mdi mdi-check-circle"></i> Statut
+                    </label>
+                    {{ form_widget(form.statut, {'attr': {'class': 'form-select'}}) }}
+                    {{ form_errors(form.statut) }}
+                </div>
+            </div>
+            {{ form_rest(form) }}
+            <div class="mt-4 d-flex justify-content-between gap-2">
+                <div>
+                    <button type="submit" class="btn btn-success px-4"><i class="mdi mdi-content-save"></i> Enregistrer</button>
+                    <button type="reset" class="btn btn-secondary px-4"><i class="mdi mdi-undo"></i> Réinitialiser</button>
+                </div>
+                <a href="{{ path('app_utilisateur_index') }}" class="btn btn-outline-secondary px-4"><i class="mdi mdi-arrow-left"></i> Retour</a>
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

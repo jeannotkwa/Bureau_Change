@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails Agence{% endblock %}
+
+{% block body %}
+<div class="container-fluid p-4">
+    <!-- Page Title -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="mdi mdi-bank"></i> Détail Agence
+            </h1>
+        </div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('app_agence_index') }}">Agences</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Détail</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Detail Card -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="mdi mdi-information-outline"></i> Informations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Nom Agence</label>
+                            <input type="text" class="form-control form-control-plaintext fw-bold" value="{{ agence.nomAgence }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Statut</label>
+                            <div>
+                                {% if agence.statut == 'Actif' %}
+                                    <span class="badge bg-success rounded-pill">
+                                        <i class="mdi mdi-check-circle"></i> {{ agence.statut }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger rounded-pill">
+                                        <i class="mdi mdi-close-circle"></i> {{ agence.statut }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Adresse</label>
+                            <input type="text" class="form-control form-control-plaintext" value="{{ agence.adresse ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Téléphone</label>
+                            <input type="text" class="form-control form-control-plaintext" value="{{ agence.telephone ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label text-muted small">Email</label>
+                            <input type="text" class="form-control form-control-plaintext" value="{{ agence.email ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2 mt-3">
+                <a href="{{ path('app_agence_edit', {'id': agence.id}) }}" class="btn btn-outline-primary">
+                    <i class="mdi mdi-pencil"></i> Modifier
+                </a>
+                <a href="{{ path('app_agence_index') }}" class="btn btn-outline-secondary">
+                    <i class="mdi mdi-arrow-left"></i> Retour
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

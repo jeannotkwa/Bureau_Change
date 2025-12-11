@@ -1,0 +1,62 @@
+<header id="page-topbar">
+    <div class="navbar-header">
+        <div class="d-flex">
+            <!-- LOGO -->
+            <div class="navbar-brand-box">
+                <a href="{{ path('app_dashboard') }}" class="logo logo-dark">
+                    <span class="logo-sm">
+                        <img src="{{ asset('assets/images/logo-sm.svg') }}" alt="" height="24">
+                    </span>
+                    <span class="logo-lg">
+                        <span class="logo-txt">Bureau Change</span>
+                    </span>
+                </a>
+            </div>
+
+            <button type="button" class="btn btn-sm px-3 font-size-16 header-item" id="vertical-menu-btn">
+                <i class="fa fa-fw fa-bars"></i>
+            </button>
+        </div>
+
+        <div class="d-flex">
+            <div class="dropdown d-inline-block">
+                <button type="button" class="btn header-item noti-icon waves-effect" data-bs-toggle="dropdown">
+                    <i class="bx bx-bell"></i>
+                    <span class="badge bg-danger rounded-pill">3</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0">
+                    <div class="p-3">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h6 class="m-0">Notifications</h6>
+                            </div>
+                            <div class="col-auto">
+                                <a href="#!" class="small">Tout marquer comme lu</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div data-simplebar style="max-height: 230px;">
+                        <!-- Notifications -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="dropdown d-inline-block">
+                <button type="button" class="btn header-item bg-light-subtle border-start border-end" data-bs-toggle="dropdown">
+                    <i class="bx bx-user-circle font-size-20 align-middle me-1"></i>
+                    <span class="d-none d-xl-inline-block ms-1 fw-medium">{{ app.user.nom }}</span>
+                    <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item" href="{{ path('app_utilisateur_show', {id: app.user.id}) }}"><i class="mdi mdi-account-circle text-muted font-size-16 align-middle me-1"></i> Mon Profil</a>
+                    {% if app.user.agence %}
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-header">Agence: {{ app.user.agence.nomAgence }}</div>
+                    {% endif %}
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ path('app_logout') }}"><i class="mdi mdi-logout text-muted font-size-16 align-middle me-1"></i> Déconnexion</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

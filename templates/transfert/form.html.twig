@@ -1,0 +1,219 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+<style>
+.fade-in { animation: fadeIn 0.25s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+input:invalid, select:invalid { border-color: #dc3545; }
+input:valid, select:valid { border-color: #198754; }
+#row-error { color: #dc3545; margin-top: 5px; font-weight: bold; display: none; }
+#row-error.visible { display: block !important; }
+</style>
+
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">{{ title }}</h4>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <h5 class="mb-0"><i class="mdi mdi-bank-transfer"></i> Transfert de fonds</h5>
+                    <small class="text-white-50">Envoi ou réception multi-devises entre agences</small>
+                </div>
+                {% if agenceActuelle %}
+                <div class="badge bg-light text-primary border">
+                    Agence actuelle : {{ agenceActuelle.nomAgence }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+
+                <form id="transfertForm" method="POST" class="needs-validation" novalidate>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">
+                                <i class="mdi mdi-swap-horizontal"></i> Nature d'opération <span class="text-danger">*</span>
+                            </label>
+                            <select name="nature_operation" id="nature_operation" class="form-select" required>
+                                <option value="envoi">Envoi</option>
+                                <option value="reception">Réception</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold" id="label_agence">
+                                <i class="mdi mdi-office-building"></i> Agence destinataire <span class="text-danger">*</span>
+                            </label>
+                            <select name="agence_cible" id="agence_cible" class="form-select" required>
+                                <option value="">-- Sélectionnez --</option>
+                                {% for agence in agences %}
+                                    <option value="{{ agence.id }}">{{ agence.nomAgence }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">
+                                <i class="mdi mdi-calendar"></i> Date de transaction <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" name="date_transaction" id="date_transaction" class="form-control" value="{{ 'now'|date('Y-m-d') }}" max="{{ 'now'|date('Y-m-d') }}" required>
+                        </div>
+                        <div class="col-md-4" id="reference_block" style="display: none;">
+                            <label class="form-label fw-bold">
+                                <i class="mdi mdi-barcode"></i> Référence (pour réception) <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" name="reference" id="reference" class="form-control" placeholder="Saisir la référence d'envoi">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="text-primary fw-bold mb-3">
+                            <i class="mdi mdi-currency-usd"></i> Détails des devises à transférer
+                        </h6>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered align-middle" id="montantTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 45%">Devise <span class="text-danger">*</span></th>
+                                        <th style="width: 40%">Montant <span class="text-danger">*</span></th>
+                                        <th style="width: 15%" class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="montantBody">
+                                    <tr class="fade-in">
+                                        <td>
+                                            <select name="devise_id_input[]" class="form-select" required>
+                                                <option value="">-- Choisir une devise --</option>
+                                                {% for devise in devises %}
+                                                    <option value="{{ devise.id }}">
+                                                        {{ devise.sigle }} - {{ devise.libelle }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" name="montant[]" class="form-control" placeholder="Ex: 1000" required>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-outline-danger btn-sm remove-row">
+                                                <i class="mdi mdi-delete"></i> Supprimer
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="row-error" class="mt-2">⚠️ Veuillez renseigner les champs avant d'ajouter une nouvelle ligne.</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <button type="button" class="btn btn-outline-primary" id="addRow">
+                            <i class="mdi mdi-plus"></i> Ajouter une devise
+                        </button>
+                        <div>
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="mdi mdi-content-save"></i> Enregistrer le transfert
+                            </button>
+                            <button type="reset" class="btn btn-secondary px-4">
+                                <i class="mdi mdi-undo"></i> Réinitialiser
+                            </button>
+                            <a href="{{ path('app_transfert_index') }}" class="btn btn-outline-secondary px-4">
+                                <i class="mdi mdi-arrow-left"></i> Retour
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Gestion du changement de nature d'opération
+document.getElementById('nature_operation').addEventListener('change', function() {
+    const value = this.value;
+    const referenceBlock = document.getElementById('reference_block');
+    const referenceInput = document.getElementById('reference');
+    const labelAgence = document.getElementById('label_agence');
+
+    if (value === 'reception') {
+        referenceBlock.style.display = 'block';
+        referenceInput.setAttribute('required', 'required');
+        labelAgence.innerHTML = '<i class="mdi mdi-office-building"></i> Agence source <span class="text-danger">*</span>';
+    } else {
+        referenceBlock.style.display = 'none';
+        referenceInput.removeAttribute('required');
+        referenceInput.value = '';
+        labelAgence.innerHTML = '<i class="mdi mdi-office-building"></i> Agence destinataire <span class="text-danger">*</span>';
+    }
+});
+
+// Ajouter une nouvelle ligne de devise
+document.getElementById('addRow').addEventListener('click', function() {
+    const tableBody = document.getElementById('montantBody');
+    const lastRow = tableBody.lastElementChild;
+    const lastMontant = lastRow.querySelector('input[name="montant[]"]');
+    const lastDevise = lastRow.querySelector('select[name="devise_id_input[]"]');
+    const errorMsg = document.getElementById('row-error');
+
+    // Vérifier que la dernière ligne est remplie
+    if (!lastMontant.value.trim() || !lastDevise.value) {
+        errorMsg.classList.remove('fade-in', 'visible');
+        void errorMsg.offsetWidth; // Force reflow
+        errorMsg.classList.add('visible', 'fade-in');
+        return;
+    }
+
+    errorMsg.classList.remove('visible');
+
+    // Cloner la dernière ligne
+    const newRow = lastRow.cloneNode(true);
+    newRow.querySelector('input[name="montant[]"]').value = '';
+    newRow.querySelector('select[name="devise_id_input[]"]').selectedIndex = 0;
+    newRow.classList.add('fade-in');
+    tableBody.appendChild(newRow);
+});
+
+// Supprimer une ligne
+document.getElementById('montantBody').addEventListener('click', function(e) {
+    if (e.target.closest('.remove-row')) {
+        const tableBody = document.getElementById('montantBody');
+        if (tableBody.children.length > 1) {
+            e.target.closest('tr').remove();
+        } else {
+            alert('Impossible de supprimer la dernière ligne.');
+        }
+    }
+});
+
+// Validation du formulaire
+document.getElementById('transfertForm').addEventListener('submit', function(e) {
+    const rows = document.querySelectorAll('#montantBody tr');
+    let hasValidRow = false;
+
+    rows.forEach(row => {
+        const montant = row.querySelector('input[name="montant[]"]').value.trim();
+        const devise = row.querySelector('select[name="devise_id_input[]"]').value;
+        if (montant && devise) {
+            hasValidRow = true;
+        }
+    });
+
+    if (!hasValidRow) {
+        e.preventDefault();
+        alert('Veuillez renseigner au moins une devise avec un montant.');
+        return false;
+    }
+});
+</script>
+{% endblock %}

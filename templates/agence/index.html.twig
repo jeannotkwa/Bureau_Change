@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Agences{% endblock %}
+
+{% block body %}
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">Agences</h4>
+    <div class="page-title-right">
+        <a href="{{ path('app_agence_new') }}" class="btn btn-primary"><i class="mdi mdi-plus"></i> Nouvelle agence</a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="mdi mdi-office-building"></i> Liste des agences</h5>
+    </div>
+    <div class="card-body">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th><i class="mdi mdi-office-building"></i> Nom</th>
+                        <th><i class="mdi mdi-map-marker"></i> Adresse</th>
+                        <th><i class="mdi mdi-phone"></i> Téléphone</th>
+                        <th><i class="mdi mdi-email"></i> Email</th>
+                        <th><i class="mdi mdi-check-circle"></i> Statut</th>
+                        <th class="text-end"><i class="mdi mdi-cog"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agence in agences %}
+                        <tr class="align-middle">
+                            <td class="fw-bold text-primary">{{ agence.nomAgence }}</td>
+                            <td>{{ agence.adresse }}</td>
+                            <td>{{ agence.telephone }}</td>
+                            <td>{{ agence.email }}</td>
+                            <td><span class="badge rounded-pill bg-{{ agence.statut == 'actif' ? 'success' : 'secondary' }}">{{ agence.statut|capitalize }}</span></td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary me-1" href="{{ path('app_agence_show', {id: agence.id}) }}" title="Voir"><i class="mdi mdi-eye"></i></a>
+                                <a class="btn btn-sm btn-outline-warning me-1" href="{{ path('app_agence_edit', {id: agence.id}) }}" title="Modifier"><i class="mdi mdi-pencil"></i></a>
+                                <form method="post" action="{{ path('app_agence_delete', {id: agence.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer cette agence ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_agence_' ~ agence.id) }}">
+                                    <button class="btn btn-sm btn-outline-danger" title="Supprimer"><i class="mdi mdi-trash-can"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="6" class="text-center text-muted">Aucune agence</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

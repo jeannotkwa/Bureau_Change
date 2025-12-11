@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails Transaction{% endblock %}
+
+{% block body %}
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">Détails Transaction</h4>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="mdi mdi-swap-horizontal"></i> {{ transaction.reference }}</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-account"></i> Client</label>
+                <p class="form-control-plaintext">{{ transaction.nom }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-card-account-details"></i> Identité</label>
+                <p class="form-control-plaintext">{{ transaction.identite ? transaction.identite.libelleIdentite : '-' }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-map-marker"></i> Adresse</label>
+                <p class="form-control-plaintext">{{ transaction.adresse }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-phone"></i> Téléphone</label>
+                <p class="form-control-plaintext">{{ transaction.telephone }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-calendar"></i> Date</label>
+                <p class="form-control-plaintext">{{ transaction.dateTransaction ? transaction.dateTransaction|date('d/m/Y') : '' }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-transfer"></i> Nature</label>
+                <p class="form-control-plaintext"><span class="badge rounded-pill bg-{{ transaction.natureOperation == 'achat' ? 'info' : 'warning' }}">{{ transaction.natureOperation|capitalize }}</span></p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-office-building"></i> Agence</label>
+                <p class="form-control-plaintext">{{ transaction.agence ? transaction.agence.nomAgence : '-' }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-account-key"></i> Par</label>
+                <p class="form-control-plaintext">{{ transaction.utilisateur ? transaction.utilisateur.nom : '-' }}</p>
+            </div>
+        </div>
+        <div class="mt-4 d-flex justify-content-end gap-2">
+            <a href="{{ path('app_transaction_edit', {id: transaction.id}) }}" class="btn btn-outline-warning px-4"><i class="mdi mdi-pencil"></i> Modifier</a>
+            <a href="{{ path('app_transaction_index') }}" class="btn btn-outline-secondary px-4"><i class="mdi mdi-arrow-left"></i> Retour</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

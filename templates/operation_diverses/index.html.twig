@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Opérations Diverses{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="m-0"><i class="mdi mdi-cash-multiple"></i> Opérations Diverses</h5>
+                <a href="{{ path('app_operation_diverse_new') }}" class="btn btn-light btn-sm">
+                    <i class="mdi mdi-plus"></i> Nouvelle Opération
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="alert alert-info m-3" role="alert">
+                    <i class="mdi mdi-information"></i> 
+                    <strong>Info :</strong> Enregistrez les opérations diverses (retraits, dépôts, etc.) pour chaque devise et agence.
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th><i class="mdi mdi-calendar"></i> Date</th>
+                                <th><i class="mdi mdi-text"></i> Motif</th>
+                                <th><i class="mdi mdi-account"></i> Bénéficiaire</th>
+                                <th><i class="mdi mdi-currency-usd"></i> Devise</th>
+                                <th class="text-end"><i class="mdi mdi-cash"></i> Montant</th>
+                                <th><i class="mdi mdi-office-building"></i> Agence</th>
+                                <th><i class="mdi mdi-account-circle"></i> Utilisateur</th>
+                                <th class="text-end"><i class="mdi mdi-cog"></i> Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for operation in operations %}
+                            <tr>
+                                <td>{{ operation.dateTransaction|date('d/m/Y') }}</td>
+                                <td>{{ operation.adresse|default('-') }}</td>
+                                <td>{{ operation.nom }}</td>
+                                <td>
+                                    {% if operation.details and operation.details|length > 0 %}
+                                        <span class="badge bg-primary">{{ operation.details[0].deviseOutput.sigle }}</span>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td class="text-end fw-bold">{{ operation.montantTotal|number_format(2, ',', ' ') }}</td>
+                                <td>
+                                    {% if operation.agence %}
+                                        {{ operation.agence.nomAgence }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if operation.utilisateur %}
+                                        {{ operation.utilisateur.nom }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="#" class="btn btn-sm btn-outline-info" title="Détails">
+                                        <i class="mdi mdi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    <i class="mdi mdi-database-outline" style="font-size: 2rem; opacity: 0.5;"></i>
+                                    <p class="mt-2">Aucune opération enregistrée pour le moment.</p>
+                                    <a href="{{ path('app_operation_diverse_new') }}" class="btn btn-sm btn-primary">
+                                        Créer la première opération
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-responsive {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}

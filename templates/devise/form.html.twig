@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white py-3">
+                <h5 class="m-0">
+                    <i class="mdi mdi-currency-usd"></i> 
+                    {% if isEditing %}Modifier{% else %}Ajouter{% endif %} une devise
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                
+                {% if errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>⚠️ Erreurs détectées :</strong>
+                        <ul class="mb-0 mt-2">
+                            {% for error in errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endif %}
+
+                <form method="POST" action="{% if isEditing and devise is defined and devise %}{{ path('app_devise_edit', {id: devise.id}) }}{% else %}{{ path('app_devise_new') }}{% endif %}" id="deviseForm">
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                💱 Sigle <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" name="sigle" 
+                                   placeholder="Ex: USD, EUR, GBP" 
+                                   value="{{ form_data.sigle|default('') }}" required 
+                                   maxlength="10" style="text-transform: uppercase;">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                📝 Intitulé <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" name="libelle" 
+                                   placeholder="Ex: Dollar Américain" 
+                                   value="{{ form_data.libelle|default('') }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                📥 Taux d'Achat <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" step="0.0001" class="form-control" name="taux_achat" 
+                                   placeholder="0.0000" value="{{ form_data.taux_achat|default('') }}" required min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                📤 Taux de Vente <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" step="0.0001" class="form-control" name="taux_vente" 
+                                   placeholder="0.0000" value="{{ form_data.taux_vente|default('') }}" required min="0">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2 justify-content-between mt-4">
+                        <div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="mdi mdi-check-circle"></i> 
+                                {% if isEditing %}Modifier{% else %}Ajouter{% endif %} la devise
+                            </button>
+                            <button type="reset" class="btn btn-secondary">
+                                <i class="mdi mdi-refresh"></i> Réinitialiser
+                            </button>
+                        </div>
+                        <a href="{{ path('app_devise_index') }}" class="btn btn-outline-secondary">
+                            <i class="mdi mdi-arrow-left"></i> Retour à la liste
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

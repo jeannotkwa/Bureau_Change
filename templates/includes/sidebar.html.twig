@@ -1,0 +1,178 @@
+<div class="vertical-menu">
+    <div data-simplebar class="h-100">
+        <!--- Sidemenu -->
+        <div id="sidebar-menu">
+            <!-- Left Menu Start -->
+            <ul class="metismenu list-unstyled" id="side-menu">
+                
+                <!-- Dashboard -->
+                <li class="menu-title" data-key="t-menu">
+                    <i class="mdi mdi-view-dashboard-outline"></i> TABLEAU DE BORD
+                </li>
+
+                <li>
+                    <a href="{{ path('app_dashboard') }}" class="waves-effect">
+                        <i class="mdi mdi-home-analytics"></i>
+                        <span data-key="t-dashboard">Accueil</span>
+                    </a>
+                </li>
+
+                <!-- Transactions Section -->
+                <li class="menu-title" data-key="t-apps">
+                    <i class="mdi mdi-swap-horizontal"></i> OPÉRATIONS
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="mdi mdi-cash-multiple"></i>
+                        <span data-key="t-transactions">Transactions Change</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="{{ path('app_transaction_new') }}" data-key="t-new-transaction">
+                            <i class="mdi mdi-plus-circle-outline"></i> Nouvelle Transaction
+                        </a></li>
+                        <li><a href="{{ path('app_transaction_index') }}" data-key="t-list-transactions">
+                            <i class="mdi mdi-format-list-bulleted"></i> Historique Transactions
+                        </a></li>
+                    </ul>
+                </li>
+
+                <!-- Gestion Section -->
+                {% if is_granted('ROLE_ADMIN') %}
+                <li class="menu-title" data-key="t-gestion">
+                    <i class="mdi mdi-briefcase"></i> GESTION FINANCIÈRE
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="mdi mdi-bank"></i>
+                        <span data-key="t-funds">Fonds de Départ</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="{{ path('app_fonds_new') }}" data-key="t-add-funds">
+                            <i class="mdi mdi-plus-circle-outline"></i> Ravitailler Fonds
+                        </a></li>
+                        <li><a href="{{ path('app_fonds_index') }}" data-key="t-list-funds">
+                            <i class="mdi mdi-view-list"></i> Registre des Fonds
+                        </a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="mdi mdi-transfer"></i>
+                        <span data-key="t-transfers">Transferts de Fonds</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="{{ path('app_transfert_new') }}" data-key="t-new-transfer">
+                            <i class="mdi mdi-send"></i> Nouveau Transfert
+                        </a></li>
+                        <li><a href="{{ path('app_transfert_index') }}" data-key="t-list-transfers">
+                            <i class="mdi mdi-history"></i> Historique Transferts
+                        </a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="mdi mdi-wallet-outline"></i>
+                        <span data-key="t-operations">Opérations Diverses</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="{{ path('app_operation_diverse_new') }}" data-key="t-new-operation">
+                            <i class="mdi mdi-plus-box"></i> Nouvelle Opération
+                        </a></li>
+                        <li><a href="{{ path('app_operation_diverse_index') }}" data-key="t-list-operations">
+                            <i class="mdi mdi-clipboard-list"></i> Liste des Opérations
+                        </a></li>
+                    </ul>
+                </li>
+                {% endif %}
+
+                <!-- Reports Section -->
+                <li class="menu-title" data-key="t-reports-section">
+                    <i class="mdi mdi-chart-line"></i> RAPPORTS & ANALYSES
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="mdi mdi-file-document-multiple"></i>
+                        <span data-key="t-reports">Rapports</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="{{ path('app_rapport_index') }}" data-key="t-daily-report">
+                            <i class="mdi mdi-calendar-today"></i> Rapport Journalier
+                        </a></li>
+                        <li><a href="{{ path('app_rapport_index') }}" data-key="t-monthly-report">
+                            <i class="mdi mdi-calendar-month"></i> Rapport Mensuel
+                        </a></li>
+                        <li><a href="{{ path('app_rapport_index') }}" data-key="t-balance-sheet">
+                            <i class="mdi mdi-cash-register"></i> Historique Soldes
+                        </a></li>
+                    </ul>
+                </li>
+
+                <!-- Administration Section -->
+                {% if is_granted('ROLE_ADMIN') %}
+                <li class="menu-title" data-key="t-admin">
+                    <i class="mdi mdi-shield-account"></i> ADMINISTRATION
+                </li>
+
+                <li>
+                    <a href="{{ path('app_admin_agencies_overview') }}" class="waves-effect">
+                        <i class="mdi mdi-hospital-box"></i>
+                        <span data-key="t-agencies-overview">Aperçu Global des Agences</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="mdi mdi-currency-usd"></i>
+                        <span data-key="t-currencies">Devises</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="{{ path('app_devise_index') }}" data-key="t-list-currencies">
+                            <i class="mdi mdi-format-list-numbered"></i> Liste des Devises
+                        </a></li>
+                        <li><a href="{{ path('app_devise_new') }}" data-key="t-add-currency">
+                            <i class="mdi mdi-plus-circle"></i> Ajouter Devise
+                        </a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="mdi mdi-account-multiple"></i>
+                        <span data-key="t-users">Utilisateurs</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="{{ path('app_utilisateur_index') }}" data-key="t-list-users">
+                            <i class="mdi mdi-account-group"></i> Liste des Agents
+                        </a></li>
+                        <li><a href="{{ path('app_utilisateur_new') }}" data-key="t-add-user">
+                            <i class="mdi mdi-account-plus"></i> Ajouter Agent
+                        </a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="mdi mdi-office-building"></i>
+                        <span data-key="t-agencies">Agences</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="{{ path('app_agence_index') }}" data-key="t-list-agencies">
+                            <i class="mdi mdi-store"></i> Liste des Agences
+                        </a></li>
+                        <li><a href="{{ path('app_agence_new') }}" data-key="t-add-agency">
+                            <i class="mdi mdi-plus-box-outline"></i> Ajouter Agence
+                        </a></li>
+                    </ul>
+                </li>
+                {% endif %}
+
+            </ul>
+        </div>
+        <!-- Sidebar -->
+    </div>
+</div>

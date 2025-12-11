@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails Utilisateur{% endblock %}
+
+{% block body %}
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">Détails Utilisateur</h4>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="mdi mdi-account-multiple"></i> {{ utilisateur.nom }}</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-account"></i> Nom</label>
+                <p class="form-control-plaintext">{{ utilisateur.nom }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-email"></i> Email</label>
+                <p class="form-control-plaintext">{{ utilisateur.email }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-account-key"></i> Rôles</label>
+                <p class="form-control-plaintext">
+                    {% for role in utilisateur.roles %}
+                        <span class="badge bg-info">{{ role }}</span>
+                    {% endfor %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-office-building"></i> Agence</label>
+                <p class="form-control-plaintext">{{ utilisateur.agence ? utilisateur.agence.nomAgence : '-' }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold"><i class="mdi mdi-check-circle"></i> Statut</label>
+                <p class="form-control-plaintext"><span class="badge rounded-pill bg-{{ utilisateur.statut == 'actif' ? 'success' : 'secondary' }}">{{ utilisateur.statut|capitalize }}</span></p>
+            </div>
+        </div>
+        <div class="mt-4 d-flex justify-content-end gap-2">
+            <a href="{{ path('app_utilisateur_edit', {id: utilisateur.id}) }}" class="btn btn-outline-warning px-4"><i class="mdi mdi-pencil"></i> Modifier</a>
+            <a href="{{ path('app_utilisateur_index') }}" class="btn btn-outline-secondary px-4"><i class="mdi mdi-arrow-left"></i> Retour</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
