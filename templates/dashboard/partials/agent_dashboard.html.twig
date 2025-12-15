@@ -1,0 +1,307 @@
+<!-- Agent Dashboard - Vue par Agence -->
+
+<!-- Statistiques Agence pour l'Agent -->
+<div class="row">
+    <div class="col-xl-3">
+        <div class="card mini-stat bg-primary text-white">
+            <div class="card-body">
+                <div class="mb-4">
+                    <div class="float-start mini-stat-img me-4">
+                        <i class="bx bx-transfer font-size-24"></i>
+                    </div>
+                    <h5 class="font-size-16 text-uppercase text-white-50">Transactions Aujourd'hui</h5>
+                    <h4 class="fw-medium font-size-24">{{ stats.total_transactions }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3">
+        <div class="card mini-stat bg-success text-white">
+            <div class="card-body">
+                <div class="mb-4">
+                    <div class="float-start mini-stat-img me-4">
+                        <i class="bx bx-money font-size-24"></i>
+                    </div>
+                    <h5 class="font-size-16 text-uppercase text-white-50">Total Achats (CDF)</h5>
+                    <h4 class="fw-medium font-size-24">{{ stats.total_achats|number_format(0, ',', ' ') }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3">
+        <div class="card mini-stat bg-info text-white">
+            <div class="card-body">
+                <div class="mb-4">
+                    <div class="float-start mini-stat-img me-4">
+                        <i class="bx bx-dollar-circle font-size-24"></i>
+                    </div>
+                    <h5 class="font-size-16 text-uppercase text-white-50">Total Ventes (CDF)</h5>
+                    <h4 class="fw-medium font-size-24">{{ stats.total_ventes|number_format(0, ',', ' ') }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3">
+        <div class="card mini-stat bg-warning text-white">
+            <div class="card-body">
+                <div class="mb-4">
+                    <div class="float-start mini-stat-img me-4">
+                        <i class="bx bxs-user-detail font-size-24"></i>
+                    </div>
+                    <h5 class="font-size-16 text-uppercase text-white-50">Votre Agence</h5>
+                    <h4 class="fw-medium font-size-18">{{ user_agence.nomAgence|slice(0, 15) }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Achats et Ventes par Devise -->
+<div class="row mt-4">
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">
+                    <i class="bx bx-money me-2"></i> Achats par Devise
+                </h4>
+                {% if stats.achats_par_devise|length > 0 %}
+                <div class="list-group">
+                    {% for devise, montant in stats.achats_par_devise %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ devise }}</h6>
+                                <small class="text-muted">Montant en CDF</small>
+                            </div>
+                            <span class="badge bg-success">
+                                {{ montant|number_format(0, ',', ' ') }} CDF
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="bx bx-info-circle me-2"></i> Aucun achat enregistré aujourd'hui
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">
+                    <i class="bx bx-dollar-circle me-2"></i> Ventes par Devise
+                </h4>
+                {% if stats.ventes_par_devise|length > 0 %}
+                <div class="list-group">
+                    {% for devise, montant in stats.ventes_par_devise %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ devise }}</h6>
+                                <small class="text-muted">Montant en CDF</small>
+                            </div>
+                            <span class="badge bg-primary">
+                                {{ montant|number_format(0, ',', ' ') }} CDF
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="bx bx-info-circle me-2"></i> Aucune vente enregistrée aujourd'hui
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Agents (si applicable) -->
+{% if stats.top_agents|length > 0 %}
+<div class="row mt-4">
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">
+                    <i class="bx bxs-user-circle me-2"></i> Top Agents Aujourd'hui
+                </h4>
+                <div class="list-group">
+                    {% for agent, count in stats.top_agents %}
+                    <div class="list-group-item">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ agent }}</h6>
+                                <small class="text-muted">{{ count }} transaction(s)</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-light text-dark">
+                                    <i class="bx bx-star"></i> Top
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Soldes de l'Agence -->
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">
+                    <i class="bx bx-wallet me-2"></i> Soldes de Votre Agence
+                </h4>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Devise</th>
+                                <th class="text-end">Solde</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for solde in soldes %}
+                            <tr>
+                                {% if solde is iterable and solde.libelle is defined %}
+                                    <td><span class="badge bg-primary">{{ solde.sigle }}</span> {{ solde.libelle }}</td>
+                                    {% set montantAffiche = solde.montant is defined ? solde.montant : (solde.solde is defined ? solde.solde : 0) %}
+                                    <td class="text-end"><strong>{{ montantAffiche|number_format(2, ',', ' ') }}</strong></td>
+                                {% elseif solde.devise is defined %}
+                                    <td><span class="badge bg-primary">{{ solde.devise.sigle }}</span> {{ solde.devise.libelle }}</td>
+                                    {% set montantAffiche = solde.montant is defined ? solde.montant : (solde.solde is defined ? solde.solde : 0) %}
+                                    <td class="text-end"><strong>{{ montantAffiche|number_format(2, ',', ' ') }}</strong></td>
+                                {% endif %}
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="2" class="text-center text-muted">Aucun solde</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- Juste Soldes sans Top Agents -->
+<div class="row mt-4">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">
+                    <i class="bx bx-wallet me-2"></i> Soldes de Votre Agence
+                </h4>
+                <div class="table-responsive">
+                    <table class="table table-centered mb-0 align-middle table-hover table-nowrap">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Devise</th>
+                                <th>Sigle</th>
+                                <th class="text-end">Solde Disponible</th>
+                                <th>Taux Achat</th>
+                                <th>Taux Vente</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for solde in soldes %}
+                            <tr>
+                                {% if solde is iterable and solde.libelle is defined %}
+                                    <td><strong>{{ solde.libelle }}</strong></td>
+                                    <td><span class="badge bg-primary">{{ solde.sigle }}</span></td>
+                                    {% set montantAffiche = solde.montant is defined ? solde.montant : (solde.solde is defined ? solde.solde : 0) %}
+                                    <td class="text-end"><strong>{{ montantAffiche|number_format(2, ',', ' ') }}</strong></td>
+                                    <td>{{ solde.tauxAchat|number_format(4, ',', ' ') }}</td>
+                                    <td>{{ solde.tauxVente|number_format(4, ',', ' ') }}</td>
+                                {% elseif solde.devise is defined %}
+                                    <td><strong>{{ solde.devise.libelle }}</strong></td>
+                                    <td><span class="badge bg-primary">{{ solde.devise.sigle }}</span></td>
+                                    {% set montantAffiche = solde.montant is defined ? solde.montant : (solde.solde is defined ? solde.solde : 0) %}
+                                    <td class="text-end"><strong>{{ montantAffiche|number_format(2, ',', ' ') }}</strong></td>
+                                    <td>{{ solde.devise.tauxAchat|number_format(4, ',', ' ') }}</td>
+                                    <td>{{ solde.devise.tauxVente|number_format(4, ',', ' ') }}</td>
+                                {% else %}
+                                    <td colspan="5" class="text-center text-muted">Format invalide</td>
+                                {% endif %}
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">Aucun solde disponible</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Transactions Récentes de l'Agence -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">
+                    <i class="bx bx-transfer me-2"></i> Transactions Récentes de Votre Agence
+                </h4>
+                <div class="table-responsive">
+                    <table class="table table-centered mb-0 align-middle table-hover table-nowrap">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Référence</th>
+                                <th>Date</th>
+                                <th>Client</th>
+                                <th>Nature</th>
+                                <th>Montant</th>
+                                <th>Agent</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in recent_transactions %}
+                            <tr>
+                                <td><a href="#" class="text-body fw-bold">{{ transaction.reference }}</a></td>
+                                <td>{{ transaction.dateTransaction|date('d/m/Y') }}</td>
+                                <td>{{ transaction.nom }}</td>
+                                <td>
+                                    {% if transaction.natureOperation == 'achat' %}
+                                        <span class="badge bg-success">Achat</span>
+                                    {% elseif transaction.natureOperation == 'vente' %}
+                                        <span class="badge bg-info">Vente</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ transaction.natureOperation|capitalize }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ transaction.montantTotal|number_format(2, ',', ' ') }} CDF</td>
+                                <td>{{ transaction.utilisateur.nom }}</td>
+                                <td>
+                                    <a href="#" class="btn btn-primary btn-sm" title="Voir">
+                                        <i class="bx bx-show-alt"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-success btn-sm" title="Imprimer">
+                                        <i class="bx bx-printer"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">Aucune transaction récente</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,385 @@
+{# Rapport Responsable d'Agence - Vue Agence avec Performance Équipe #}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">📊 Rapport d'Agence - {{ user_agence ? user_agence.nomAgence : 'Sans agence' }}</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}">Tableau de Bord</a></li>
+                    <li class="breadcrumb-item active">Rapports</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Filtres de recherche #}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">🔍 Filtres de Recherche</h5>
+                <form method="get" action="{{ path('app_rapport_index') }}" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="date_debut" class="form-label">Date Début</label>
+                        <input type="date" class="form-control" id="date_debut" name="date_debut" value="{{ date_debut }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="date_fin" class="form-label">Date Fin</label>
+                        <input type="date" class="form-control" id="date_fin" name="date_fin" value="{{ date_fin }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="devise" class="form-label">Devise</label>
+                        <select class="form-select" id="devise" name="devise">
+                            <option value="">Toutes les devises</option>
+                            {% for devise in devises %}
+                                <option value="{{ devise.id }}" {% if devise_filter == devise.id %}selected{% endif %}>
+                                    {{ devise.libelle }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-filter-alt me-1"></i> Appliquer les Filtres
+                        </button>
+                        <a href="{{ path('app_rapport_index') }}" class="btn btn-secondary">
+                            <i class="bx bx-reset me-1"></i> Réinitialiser
+                        </a>
+                        <button type="button" class="btn btn-success" onclick="window.print()">
+                            <i class="bx bx-printer me-1"></i> Imprimer
+                        </button>
+                        <a href="{{ path('app_rapport_export_pdf', {date_debut: date_debut, date_fin: date_fin, devise: devise_filter}) }}" class="btn btn-danger">
+                            <i class="bx bx-file-pdf me-1"></i> Export PDF
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Statistiques de l'Agence #}
+<div class="row mb-4">
+    <div class="col-xl-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted text-uppercase mb-2">Total Transactions</h6>
+                        <h3 class="mb-0">{{ stats.total_transactions }}</h3>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-primary-subtle text-primary rounded-3">
+                            <i class="bx bx-transfer font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted text-uppercase mb-2">Total Achats</h6>
+                        <h3 class="mb-0 text-success">{{ stats.total_achats|number_format(0, ',', ' ') }} FC</h3>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-success-subtle text-success rounded-3">
+                            <i class="bx bx-download font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted text-uppercase mb-2">Total Ventes</h6>
+                        <h3 class="mb-0 text-info">{{ stats.total_ventes|number_format(0, ',', ' ') }} FC</h3>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-info-subtle text-info rounded-3">
+                            <i class="bx bx-upload font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted text-uppercase mb-2">Marge Brute</h6>
+                        <h3 class="mb-0 {% if stats.marge_brute >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            {{ stats.marge_brute|number_format(0, ',', ' ') }} FC
+                        </h3>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-warning-subtle text-warning rounded-3">
+                            <i class="bx bx-trending-up font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Performance par Agent - Section Principale pour Responsable #}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">👥 Performance par Agent</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Rang</th>
+                                <th>Agent</th>
+                                <th class="text-center">Transactions</th>
+                                <th class="text-end">Achats (FC)</th>
+                                <th class="text-end">Ventes (FC)</th>
+                                <th class="text-end">Total Volume</th>
+                                <th class="text-center">Performance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set rank = 0 %}
+                            {% for agent_nom, data in stats.stats_par_agent %}
+                                {% set rank = rank + 1 %}
+                                {% set total_volume = data.achats + data.ventes %}
+                                <tr>
+                                    <td>
+                                        {% if rank == 1 %}
+                                            <span class="badge bg-warning text-dark">🥇 #{{ rank }}</span>
+                                        {% elseif rank == 2 %}
+                                            <span class="badge bg-secondary">🥈 #{{ rank }}</span>
+                                        {% elseif rank == 3 %}
+                                            <span class="badge bg-danger">🥉 #{{ rank }}</span>
+                                        {% else %}
+                                            <span class="badge bg-light text-dark">#{{ rank }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <strong>{{ agent_nom }}</strong>
+                                        {% if data.agent %}
+                                            <small class="text-muted d-block">{{ data.agent.email }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary">{{ data.count }}</span>
+                                    </td>
+                                    <td class="text-end text-success">{{ data.achats|number_format(0, ',', ' ') }}</td>
+                                    <td class="text-end text-info">{{ data.ventes|number_format(0, ',', ' ') }}</td>
+                                    <td class="text-end">
+                                        <strong>{{ total_volume|number_format(0, ',', ' ') }}</strong>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if total_volume > 500000 %}
+                                            <span class="badge bg-success">Excellente</span>
+                                        {% elseif total_volume > 200000 %}
+                                            <span class="badge bg-info">Très Bonne</span>
+                                        {% elseif total_volume > 50000 %}
+                                            <span class="badge bg-warning">Bonne</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Moyenne</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th colspan="2">TOTAL AGENCE</th>
+                                <th class="text-center">{{ stats.total_transactions }}</th>
+                                <th class="text-end text-success">{{ stats.total_achats|number_format(0, ',', ' ') }}</th>
+                                <th class="text-end text-info">{{ stats.total_ventes|number_format(0, ',', ' ') }}</th>
+                                <th class="text-end">
+                                    <strong>{{ (stats.total_achats + stats.total_ventes)|number_format(0, ',', ' ') }}</strong>
+                                </th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Répartition par Devise #}
+<div class="row mb-4">
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">💱 Achats par Devise</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Devise</th>
+                                <th class="text-end">Montant (FC)</th>
+                                <th class="text-end">%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set total = stats.total_achats %}
+                            {% for devise, montant in stats.achats_par_devise %}
+                                <tr>
+                                    <td><strong>{{ devise }}</strong></td>
+                                    <td class="text-end">{{ montant|number_format(0, ',', ' ') }}</td>
+                                    <td class="text-end">
+                                        {% if total > 0 %}
+                                            <span class="badge bg-success">{{ ((montant / total) * 100)|number_format(1) }}%</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">0%</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">💱 Ventes par Devise</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Devise</th>
+                                <th class="text-end">Montant (FC)</th>
+                                <th class="text-end">%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set total = stats.total_ventes %}
+                            {% for devise, montant in stats.ventes_par_devise %}
+                                <tr>
+                                    <td><strong>{{ devise }}</strong></td>
+                                    <td class="text-end">{{ montant|number_format(0, ',', ' ') }}</td>
+                                    <td class="text-end">
+                                        {% if total > 0 %}
+                                            <span class="badge bg-info">{{ ((montant / total) * 100)|number_format(1) }}%</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">0%</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Soldes de l'Agence #}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">💰 Soldes par Devise - {{ user_agence ? user_agence.nomAgence : 'Agence' }}</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Devise</th>
+                                <th class="text-end">Solde</th>
+                                <th class="text-end">Équivalent FC</th>
+                                <th class="text-center">Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for solde in soldes %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ solde.devise.libelle }}</strong>
+                                        <small class="text-muted d-block">{{ solde.devise.code }}</small>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="{% if solde.solde < 0 %}text-danger{% else %}text-success{% endif %}">
+                                            {{ solde.solde|number_format(2, ',', ' ') }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        {{ (solde.solde * solde.devise.tauxAchat)|number_format(0, ',', ' ') }} FC
+                                    </td>
+                                    <td class="text-center">
+                                        {% if solde.solde > 1000 %}
+                                            <span class="badge bg-success">Excellent</span>
+                                        {% elseif solde.solde > 0 %}
+                                            <span class="badge bg-info">Normal</span>
+                                        {% elseif solde.solde == 0 %}
+                                            <span class="badge bg-warning">Vide</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">⚠️ Négatif</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Liste des Transactions #}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">📋 Historique des Transactions ({{ transactions|length }})</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Réf</th>
+                                <th>Date</th>
+                                <th>Nature</th>
+                                <th>Client</th>
+                                <th class="text-end">Montant (FC)</th>
+                                <th>Agent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                                <tr>
+                                    <td><code>#{{ transaction.numeroReference }}</code></td>
+                                    <td>{{ transaction.dateTransaction|date('d/m/Y H:i') }}</td>
+                                    <td>
+                                        {% if transaction.natureOperation == 'achat' %}
+                                            <span class="badge bg-success-subtle text-success">Achat</span>
+                                        {% else %}
+                                            <span class="badge bg-info-subtle text-info">Vente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ transaction.nomClient|default('N/A') }}</td>
+                                    <td class="text-end">{{ transaction.montantTotal|number_format(0, ',', ' ') }}</td>
+                                    <td>{{ transaction.utilisateur ? transaction.utilisateur.nom : 'N/A' }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

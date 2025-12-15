@@ -1,0 +1,251 @@
+{# Rapport Caissier - Vue Opérationnelle Axée Soldes #}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">📊 Rapport Caisse - {{ user_agence ? user_agence.nomAgence : 'Sans agence' }}</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}">Tableau de Bord</a></li>
+                    <li class="breadcrumb-item active">Rapports</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Sélection de période #}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" action="{{ path('app_rapport_index') }}" class="row g-3">
+                    <div class="col-md-5">
+                        <label for="date_debut" class="form-label">Début</label>
+                        <input type="date" class="form-control" id="date_debut" name="date_debut" value="{{ date_debut }}">
+                    </div>
+                    <div class="col-md-5">
+                        <label for="date_fin" class="form-label">Fin</label>
+                        <input type="date" class="form-control" id="date_fin" name="date_fin" value="{{ date_fin }}">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bx bx-search"></i> Rechercher
+                        </button>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <a href="{{ path('app_rapport_export_pdf', {date_debut: date_debut, date_fin: date_fin}) }}" class="btn btn-danger">
+                            <i class="bx bx-file-pdf me-1"></i> Export PDF
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Soldes - Section Prioritaire pour Caissier #}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bx bx-wallet me-2"></i>💰 État de la Caisse</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for solde in soldes %}
+                        <div class="col-xl-3 col-md-4 col-sm-6 mb-3">
+                            <div class="card {% if solde.solde < 0 %}bg-danger-subtle border-danger{% elseif solde.solde > 500 %}bg-success-subtle border-success{% elseif solde.solde > 0 %}bg-warning-subtle border-warning{% else %}bg-secondary-subtle{% endif %}">
+                                <div class="card-body text-center">
+                                    <h6 class="text-muted mb-1">{{ solde.devise.libelle }}</h6>
+                                    <h2 class="mb-1 {% if solde.solde < 0 %}text-danger{% elseif solde.solde > 0 %}text-success{% else %}text-secondary{% endif %}">
+                                        {{ solde.solde|number_format(2, ',', ' ') }}
+                                    </h2>
+                                    <small class="text-muted d-block">{{ solde.devise.code }}</small>
+                                    <hr class="my-2">
+                                    <div class="text-center">
+                                        {% if solde.solde < 0 %}
+                                            <span class="badge bg-danger">⚠️ NÉGATIF</span>
+                                        {% elseif solde.solde == 0 %}
+                                            <span class="badge bg-secondary">VIDE</span>
+                                        {% elseif solde.solde < 100 %}
+                                            <span class="badge bg-warning">FAIBLE</span>
+                                        {% elseif solde.solde < 500 %}
+                                            <span class="badge bg-info">NORMAL</span>
+                                        {% else %}
+                                            <span class="badge bg-success">BON</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Statistiques Simplifiées #}
+<div class="row mb-4">
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted text-uppercase mb-2">Transactions</h6>
+                        <h3 class="mb-0">{{ stats.total_transactions }}</h3>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-primary-subtle text-primary rounded-3">
+                            <i class="bx bx-receipt font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted text-uppercase mb-2">Achats</h6>
+                        <h3 class="mb-0 text-success">{{ stats.total_achats|number_format(0, ',', ' ') }}</h3>
+                        <small class="text-muted">FC</small>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-success-subtle text-success rounded-3">
+                            <i class="bx bx-download font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted text-uppercase mb-2">Ventes</h6>
+                        <h3 class="mb-0 text-info">{{ stats.total_ventes|number_format(0, ',', ' ') }}</h3>
+                        <small class="text-muted">FC</small>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-info-subtle text-info rounded-3">
+                            <i class="bx bx-upload font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Répartition par Devise #}
+<div class="row mb-4">
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">💵 Achats par Devise</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Devise</th>
+                                <th class="text-end">Montant (FC)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for devise, montant in stats.achats_par_devise %}
+                                <tr>
+                                    <td><strong>{{ devise }}</strong></td>
+                                    <td class="text-end text-success">{{ montant|number_format(0, ',', ' ') }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">Aucun achat</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">💵 Ventes par Devise</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Devise</th>
+                                <th class="text-end">Montant (FC)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for devise, montant in stats.ventes_par_devise %}
+                                <tr>
+                                    <td><strong>{{ devise }}</strong></td>
+                                    <td class="text-end text-info">{{ montant|number_format(0, ',', ' ') }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">Aucune vente</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Liste des Transactions #}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">📋 Transactions ({{ transactions|length }})</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Réf</th>
+                                <th>Date</th>
+                                <th>Nature</th>
+                                <th>Client</th>
+                                <th class="text-end">Montant (FC)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                                <tr>
+                                    <td><code>#{{ transaction.numeroReference }}</code></td>
+                                    <td>{{ transaction.dateTransaction|date('d/m/Y H:i') }}</td>
+                                    <td>
+                                        {% if transaction.natureOperation == 'achat' %}
+                                            <span class="badge bg-success">Achat</span>
+                                        {% else %}
+                                            <span class="badge bg-info">Vente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ transaction.nomClient|default('N/A') }}</td>
+                                    <td class="text-end">{{ transaction.montantTotal|number_format(0, ',', ' ') }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">Aucune transaction</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

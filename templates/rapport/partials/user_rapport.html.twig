@@ -1,0 +1,192 @@
+{# Rapport Utilisateur Basic - Vue Restreinte #}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">📊 Mes Rapports</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}">Tableau de Bord</a></li>
+                    <li class="breadcrumb-item active">Rapports</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Information - Accès Limité #}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <h5 class="alert-heading"><i class="bx bx-info-circle me-2"></i>Information</h5>
+            <p class="mb-0">
+                Votre rôle ne vous donne pas accès aux rapports détaillés.
+                Pour consulter les statistiques et rapports avancés, veuillez contacter votre responsable d'agence.
+            </p>
+        </div>
+    </div>
+</div>
+
+{# Statistiques Basiques #}
+<div class="row mb-4">
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="avatar-sm mx-auto mb-3">
+                    <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
+                        <i class="bx bx-user font-size-24"></i>
+                    </span>
+                </div>
+                <h6 class="text-muted text-uppercase">Votre Agence</h6>
+                <h4 class="mb-0">{{ user_agence ? user_agence.nomAgence : 'Non assigné' }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="avatar-sm mx-auto mb-3">
+                    <span class="avatar-title bg-success-subtle text-success rounded-circle">
+                        <i class="bx bx-calendar font-size-24"></i>
+                    </span>
+                </div>
+                <h6 class="text-muted text-uppercase">Période</h6>
+                <h4 class="mb-0">{{ date_debut|date('d/m/Y') }} - {{ date_fin|date('d/m/Y') }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="avatar-sm mx-auto mb-3">
+                    <span class="avatar-title bg-info-subtle text-info rounded-circle">
+                        <i class="bx bx-transfer font-size-24"></i>
+                    </span>
+                </div>
+                <h6 class="text-muted text-uppercase">Transactions Récentes</h6>
+                <h4 class="mb-0">{{ stats.total_transactions|default(0) }}</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Soldes Disponibles - Vue Simple #}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">💰 Devises Disponibles</h5>
+                {% if soldes is defined and soldes|length > 0 %}
+                    <div class="row">
+                        {% for solde in soldes %}
+                            <div class="col-xl-3 col-md-4 col-sm-6 mb-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6 class="mb-1">{{ solde.libelle }}</h6>
+                                        <h4 class="mb-0">
+                                            {{ solde.montant|number_format(2, ',', ' ') }}
+                                        </h4>
+                                        <small class="text-muted">{{ solde.sigle }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">Aucune information sur les soldes disponible.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Devises Actives #}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">💱 Devises Actives</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Devise</th>
+                                <th>Code</th>
+                                <th class="text-end">Taux Achat</th>
+                                <th class="text-end">Taux Vente</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for devise in devises %}
+                                <tr>
+                                    <td><strong>{{ devise.libelle }}</strong></td>
+                                    <td><code>{{ devise.sigle }}</code></td>
+                                    <td class="text-end">{{ devise.tauxAchat|number_format(2, ',', ' ') }}</td>
+                                    <td class="text-end">{{ devise.tauxVente|number_format(2, ',', ' ') }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">Aucune devise active</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Transactions Récentes - Vue Limitée #}
+{% if transactions is defined and transactions|length > 0 %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">📋 Transactions Récentes</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Nature</th>
+                                    <th class="text-end">Montant (FC)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in transactions|slice(0, 10) %}
+                                    <tr>
+                                        <td>{{ transaction.dateTransaction|date('d/m/Y H:i') }}</td>
+                                        <td>
+                                            {% if transaction.natureOperation == 'achat' %}
+                                                <span class="badge bg-success-subtle text-success">Achat</span>
+                                            {% else %}
+                                                <span class="badge bg-info-subtle text-info">Vente</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">{{ transaction.montantTotal|number_format(0, ',', ' ') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{# Message d'aide #}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-body">
+                <h5 class="card-title text-primary"><i class="bx bx-help-circle me-2"></i>Besoin d'aide ?</h5>
+                <p class="mb-0">
+                    Pour obtenir des rapports détaillés ou des informations supplémentaires, 
+                    veuillez contacter votre responsable d'agence ou le service administratif.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

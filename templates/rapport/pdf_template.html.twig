@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Rapport {{ user_role|capitalize }} - {{ date_debut }} au {{ date_fin }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 20px;
+        }
+        h1, h2, h3, h4 {
+            color: #333;
+        }
+        h1 {
+            font-size: 20px;
+            border-bottom: 3px solid #0d6efd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 16px;
+            color: #0d6efd;
+            margin-top: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        h3 {
+            font-size: 14px;
+            color: #666;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        table th {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: bold;
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+        table td {
+            padding: 6px 8px;
+            border: 1px solid #dee2e6;
+        }
+        table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-success {
+            color: #198754;
+        }
+        .text-danger {
+            color: #dc3545;
+        }
+        .text-info {
+            color: #0dcaf0;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            font-size: 10px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .badge-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .badge-info {
+            background-color: #cff4fc;
+            color: #055160;
+        }
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #664d03;
+        }
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        .stats-box {
+            display: inline-block;
+            width: 23%;
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            vertical-align: top;
+        }
+        .stats-box h4 {
+            margin: 5px 0;
+            font-size: 20px;
+        }
+        .stats-box p {
+            margin: 0;
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .header-info {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #0d6efd;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            font-size: 10px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>📊 Rapport {{ user_role|upper }} - Système de Change</h1>
+    
+    <div class="header-info">
+        <p><strong>Période:</strong> {{ date_debut|date('d/m/Y') }} au {{ date_fin|date('d/m/Y') }}</p>
+        <p><strong>Généré le:</strong> {{ "now"|date('d/m/Y à H:i:s') }}</p>
+        <p><strong>Utilisateur:</strong> {{ user_name }}</p>
+        {% if user_agence %}
+            <p><strong>Agence:</strong> {{ user_agence.nomAgence }}</p>
+        {% endif %}
+    </div>
+
+    {# Statistiques Générales #}
+    <h2>📈 Statistiques Générales</h2>
+    <div style="margin: 20px 0;">
+        <div class="stats-box">
+            <p>Transactions</p>
+            <h4>{{ stats.total_transactions|default(0) }}</h4>
+        </div>
+        <div class="stats-box">
+            <p>Total Achats</p>
+            <h4 class="text-success">{{ stats.total_achats|default(0)|number_format(0, ',', ' ') }}</h4>
+        </div>
+        <div class="stats-box">
+            <p>Total Ventes</p>
+            <h4 class="text-info">{{ stats.total_ventes|default(0)|number_format(0, ',', ' ') }}</h4>
+        </div>
+        <div class="stats-box">
+            <p>Marge Brute</p>
+            <h4 class="{% if stats.marge_brute|default(0) >= 0 %}text-success{% else %}text-danger{% endif %}">
+                {{ stats.marge_brute|default(0)|number_format(0, ',', ' ') }}
+            </h4>
+        </div>
+    </div>
+
+    {# Achats par Devise #}
+    {% if stats.achats_par_devise is defined and stats.achats_par_devise|length > 0 %}
+        <h2>💵 Achats par Devise</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Devise</th>
+                    <th class="text-right">Montant (FC)</th>
+                    <th class="text-right">Pourcentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for devise, montant in stats.achats_par_devise %}
+                    <tr>
+                        <td><strong>{{ devise }}</strong></td>
+                        <td class="text-right">{{ montant|number_format(0, ',', ' ') }}</td>
+                        <td class="text-right">
+                            {% if stats.total_achats > 0 %}
+                                {{ ((montant / stats.total_achats) * 100)|number_format(1) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {# Ventes par Devise #}
+    {% if stats.ventes_par_devise is defined and stats.ventes_par_devise|length > 0 %}
+        <h2>💵 Ventes par Devise</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Devise</th>
+                    <th class="text-right">Montant (FC)</th>
+                    <th class="text-right">Pourcentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for devise, montant in stats.ventes_par_devise %}
+                    <tr>
+                        <td><strong>{{ devise }}</strong></td>
+                        <td class="text-right">{{ montant|number_format(0, ',', ' ') }}</td>
+                        <td class="text-right">
+                            {% if stats.total_ventes > 0 %}
+                                {{ ((montant / stats.total_ventes) * 100)|number_format(1) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {# Performance par Agence (Admin seulement) #}
+    {% if is_admin and stats.transactions_par_agence is defined and stats.transactions_par_agence|length > 0 %}
+        <h2>🏢 Performance par Agence</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Agence</th>
+                    <th class="text-center">Transactions</th>
+                    <th class="text-right">Achats (FC)</th>
+                    <th class="text-right">Ventes (FC)</th>
+                    <th class="text-right">Marge</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for agence_nom, data in stats.transactions_par_agence %}
+                    {% set marge = data.ventes - data.achats %}
+                    <tr>
+                        <td><strong>{{ agence_nom }}</strong></td>
+                        <td class="text-center">{{ data.count }}</td>
+                        <td class="text-right">{{ data.achats|number_format(0, ',', ' ') }}</td>
+                        <td class="text-right">{{ data.ventes|number_format(0, ',', ' ') }}</td>
+                        <td class="text-right {% if marge >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            {{ marge|number_format(0, ',', ' ') }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {# Performance par Agent (Responsable) #}
+    {% if is_responsable and stats.stats_par_agent is defined and stats.stats_par_agent|length > 0 %}
+        <h2>👥 Performance par Agent</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rang</th>
+                    <th>Agent</th>
+                    <th class="text-center">Transactions</th>
+                    <th class="text-right">Achats (FC)</th>
+                    <th class="text-right">Ventes (FC)</th>
+                    <th class="text-right">Total Volume</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set rank = 0 %}
+                {% for agent_nom, data in stats.stats_par_agent %}
+                    {% set rank = rank + 1 %}
+                    {% set total_volume = data.achats + data.ventes %}
+                    <tr>
+                        <td class="text-center">
+                            {% if rank <= 3 %}
+                                <strong>#{{ rank }}</strong>
+                            {% else %}
+                                #{{ rank }}
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ agent_nom }}</strong></td>
+                        <td class="text-center">{{ data.count }}</td>
+                        <td class="text-right">{{ data.achats|number_format(0, ',', ' ') }}</td>
+                        <td class="text-right">{{ data.ventes|number_format(0, ',', ' ') }}</td>
+                        <td class="text-right"><strong>{{ total_volume|number_format(0, ',', ' ') }}</strong></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {# Soldes par Devise #}
+    {% if soldes is defined and soldes|length > 0 %}
+        <h2>💰 Soldes par Devise</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Devise</th>
+                    <th>Code</th>
+                    <th class="text-right">Solde</th>
+                    <th class="text-right">Équivalent FC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for solde in soldes %}
+                    <tr>
+                        <td><strong>{{ solde.devise.libelle }}</strong></td>
+                        <td>{{ solde.devise.code }}</td>
+                        <td class="text-right {% if solde.solde < 0 %}text-danger{% else %}text-success{% endif %}">
+                            {{ solde.solde|number_format(2, ',', ' ') }}
+                        </td>
+                        <td class="text-right">
+                            {{ (solde.solde * solde.devise.tauxAchat)|number_format(0, ',', ' ') }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {# Transactions (limitées) #}
+    {% if transactions is defined and transactions|length > 0 %}
+        <h2>📋 Détail des Transactions ({{ [transactions|length, 50]|min }} premières)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Réf</th>
+                    <th>Date</th>
+                    <th>Nature</th>
+                    <th>Client</th>
+                    <th class="text-right">Montant (FC)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions|slice(0, 50) %}
+                    <tr>
+                        <td><small>{{ transaction.numeroReference }}</small></td>
+                        <td>{{ transaction.dateTransaction|date('d/m/Y H:i') }}</td>
+                        <td>
+                            <span class="badge {% if transaction.natureOperation == 'achat' %}badge-success{% else %}badge-info{% endif %}">
+                                {{ transaction.natureOperation|upper }}
+                            </span>
+                        </td>
+                        <td>{{ transaction.nomClient|default('N/A') }}</td>
+                        <td class="text-right">{{ transaction.montantTotal|number_format(0, ',', ' ') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div class="footer">
+        <p>Document généré automatiquement - Système de Gestion de Change</p>
+        <p>© {{ "now"|date('Y') }} - Tous droits réservés</p>
+    </div>
+</body>
+</html>

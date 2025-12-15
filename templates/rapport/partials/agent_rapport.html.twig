@@ -1,0 +1,258 @@
+{# Rapport Agent de Change - Vue Opérationnelle Simplifiée #}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">📊 Rapport d'Activité - Agent</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}">Tableau de Bord</a></li>
+                    <li class="breadcrumb-item active">Rapports</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Filtres de recherche simplifiés #}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">🔍 Période de Recherche</h5>
+                <form method="get" action="{{ path('app_rapport_index') }}" class="row g-3">
+                    <div class="col-md-5">
+                        <label for="date_debut" class="form-label">Date Début</label>
+                        <input type="date" class="form-control" id="date_debut" name="date_debut" value="{{ date_debut }}">
+                    </div>
+                    <div class="col-md-5">
+                        <label for="date_fin" class="form-label">Date Fin</label>
+                        <input type="date" class="form-control" id="date_fin" name="date_fin" value="{{ date_fin }}">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bx bx-search me-1"></i> Rechercher
+                        </button>
+                    </div>
+                    <div class="col-12">
+                        <a href="{{ path('app_rapport_export_pdf', {date_debut: date_debut, date_fin: date_fin}) }}" class="btn btn-danger">
+                            <i class="bx bx-file-pdf me-1"></i> Export PDF
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Statistiques de l'Agence #}
+<div class="row mb-4">
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted text-uppercase mb-2">Total Transactions</h6>
+                        <h3 class="mb-0">{{ stats.total_transactions }}</h3>
+                        <small class="text-muted">Agence: {{ user_agence ? user_agence.nomAgence : 'N/A' }}</small>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-primary-subtle text-primary rounded-3">
+                            <i class="bx bx-transfer font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted text-uppercase mb-2">Total Achats</h6>
+                        <h3 class="mb-0 text-success">{{ stats.total_achats|number_format(0, ',', ' ') }}</h3>
+                        <small class="text-muted">FC</small>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-success-subtle text-success rounded-3">
+                            <i class="bx bx-download font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted text-uppercase mb-2">Total Ventes</h6>
+                        <h3 class="mb-0 text-info">{{ stats.total_ventes|number_format(0, ',', ' ') }}</h3>
+                        <small class="text-muted">FC</small>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-info-subtle text-info rounded-3">
+                            <i class="bx bx-upload font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Répartition par Devise #}
+<div class="row mb-4">
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">💱 Achats par Devise</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Devise</th>
+                                <th class="text-end">Montant (FC)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for devise, montant in stats.achats_par_devise %}
+                                <tr>
+                                    <td><strong>{{ devise }}</strong></td>
+                                    <td class="text-end text-success">{{ montant|number_format(0, ',', ' ') }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">Aucun achat sur cette période</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th>TOTAL</th>
+                                <th class="text-end">{{ stats.total_achats|number_format(0, ',', ' ') }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">💱 Ventes par Devise</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Devise</th>
+                                <th class="text-end">Montant (FC)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for devise, montant in stats.ventes_par_devise %}
+                                <tr>
+                                    <td><strong>{{ devise }}</strong></td>
+                                    <td class="text-end text-info">{{ montant|number_format(0, ',', ' ') }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">Aucune vente sur cette période</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th>TOTAL</th>
+                                <th class="text-end">{{ stats.total_ventes|number_format(0, ',', ' ') }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Soldes de l'Agence #}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">💰 Soldes Disponibles</h5>
+                <div class="row">
+                    {% for solde in soldes %}
+                        <div class="col-xl-3 col-md-4 col-sm-6 mb-3">
+                            <div class="card border {% if solde.solde < 0 %}border-danger{% elseif solde.solde > 500 %}border-success{% else %}border-warning{% endif %}">
+                                <div class="card-body">
+                                    <h6 class="mb-1">{{ solde.devise.libelle }}</h6>
+                                    <h4 class="mb-0 {% if solde.solde < 0 %}text-danger{% else %}text-success{% endif %}">
+                                        {{ solde.solde|number_format(2, ',', ' ') }}
+                                    </h4>
+                                    <small class="text-muted">{{ solde.devise.code }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Liste des Transactions #}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">📋 Transactions Récentes ({{ transactions|length }})</h5>
+                <div class="alert alert-info">
+                    <i class="bx bx-info-circle me-2"></i>
+                    Affichage limité aux 50 dernières transactions de l'agence.
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Réf</th>
+                                <th>Date</th>
+                                <th>Nature</th>
+                                <th>Client</th>
+                                <th class="text-end">Montant (FC)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                                <tr>
+                                    <td><code>#{{ transaction.numeroReference }}</code></td>
+                                    <td>{{ transaction.dateTransaction|date('d/m/Y H:i') }}</td>
+                                    <td>
+                                        {% if transaction.natureOperation == 'achat' %}
+                                            <span class="badge bg-success-subtle text-success">Achat</span>
+                                        {% else %}
+                                            <span class="badge bg-info-subtle text-info">Vente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ transaction.nomClient|default('N/A') }}</td>
+                                    <td class="text-end">
+                                        <strong>{{ transaction.montantTotal|number_format(0, ',', ' ') }}</strong>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        <i class="bx bx-info-circle font-size-24 d-block mb-2"></i>
+                                        Aucune transaction sur cette période
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
